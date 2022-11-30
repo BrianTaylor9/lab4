@@ -8,9 +8,6 @@ To build the program, enter the lab4 directory, which should contain ext2-create
 
 ## Running
 
-Show how to compile, mount, and example output of `ls -ain` your mounted
-filesystem.
-
 To create the base image, run the command "./ext2-create". To create the mount directory and mount the filesytem, run the command "mkdir mnt && sudo mount -o loop cs111-base.img mnt". Running the command "ls -ain" in the mount directory should produce an output that resembles the following:
 
 total 7

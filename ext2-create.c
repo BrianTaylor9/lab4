@@ -389,6 +389,9 @@ void write_inode_table(int fd) {
 	            | EXT2_S_IROTH
 	            | EXT2_S_IXOTH;
 	root.i_size = 1024;
+	root.i_atime = current_time;
+	root.i_ctime = current_time;
+	root.i_mtime = current_time;
 	root.i_links_count = 3;
 	root.i_blocks = 2;
 	root.i_block[0] = ROOT_DIR_BLOCKNO;
@@ -403,6 +406,9 @@ void write_inode_table(int fd) {
 	hello_world.i_uid = 1000;
 	hello_world.i_gid = 1000;
 	hello_world.i_size = 12;
+	hello_world.i_atime = current_time;
+	hello_world.i_ctime = current_time;
+	hello_world.i_mtime = current_time;
 	hello_world.i_blocks = 2;
 	hello_world.i_links_count = 1;
 	hello_world.i_block[0] = HELLO_WORLD_FILE_BLOCKNO;
@@ -417,6 +423,9 @@ void write_inode_table(int fd) {
 	hello.i_uid = 1000;
 	hello.i_gid = 1000;
 	hello.i_size = 11;
+	hello.i_atime = current_time;
+	hello.i_ctime = current_time;
+	hello.i_mtime = current_time;
 	hello.i_links_count = 1;
 	memset(hello.i_block, 0, sizeof hello.i_block);
     memcpy(hello.i_block, "hello-world", strlen("hello-world")); // path to linked file is stored in inode's block pointer array
