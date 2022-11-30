@@ -298,7 +298,7 @@ void write_block_bitmap(int fd) {
 	}
 
 	unsigned int full_blocks = 0;
-	full_blocks = (~full_blocks) >> ((sizeof full_blocks) - LAST_BLOCK);
+	full_blocks = (~full_blocks) >> ((sizeof full_blocks)*8 - LAST_BLOCK);
 	if (write(fd, &full_blocks, sizeof full_blocks) != sizeof full_blocks) {
 		errno_exit("write");
 	}
