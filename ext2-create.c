@@ -506,7 +506,7 @@ void write_hello_world_file_block(int fd) {
 		errno_exit("lseek");
 	}
 
-	char to_write[13] = "hello world\n"; 
+	char to_write[13] = "Hello world\n"; 
 	if (write(fd, &to_write, sizeof to_write) != sizeof to_write) {
 		errno_exit("write");
 	}
