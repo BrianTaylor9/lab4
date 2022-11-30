@@ -296,8 +296,9 @@ void write_block_bitmap(int fd) {
 	if (off == -1) {
 		errno_exit("lseek");
 	}
-	// unsigned int to_write = 0x7FFFFF;
-	unsigned long full_blocks = 2**LAST_BLOCK - 1;
+
+	unsigned int full_blocks = 0;
+	full_blocks = (~full_blocks) >> ((sizeof full_blocks) - LAST_BLOCK);
 	if (write(fd, &full_blocks, sizeof full_blocks) != sizeof full_blocks) {
 		errno_exit("write");
 	}
@@ -312,7 +313,8 @@ void write_inode_bitmap(int fd) {
 	}
 
 	unsigned char buf[1024] = {0};
-	for (int i = 16; i < 1024; i++) {
+	int start_padding = NUM_INODES / 8;
+	for (int i = start_padding; i < NUM_INODES; i++) {
 		buf[i] = 0xFF;
 	}
 	if (write(fd, &buf, sizeof buf) != sizeof buf) {
@@ -325,8 +327,10 @@ void write_inode_bitmap(int fd) {
 	if (off == -1) {
 		errno_exit("lseek");
 	}
-	unsigned int to_write = 0x1FFF;
-	if (write(fd, &to_write, sizeof to_write) != sizeof to_write) {
+	// unsigned int to_write = 0x1FFF;
+	unsigned int full_inodes = 0;
+	full_blocks = (~full_inodes) >> ((sizeof full_inodes) - LAST_INO);
+	if (write(fd, &full_inodes, sizeof full_inodes) != sizeof full_inodes) {
 		errno_exit("write");
 	}
 }
