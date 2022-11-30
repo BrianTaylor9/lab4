@@ -329,7 +329,7 @@ void write_inode_bitmap(int fd) {
 	}
 	// unsigned int to_write = 0x1FFF;
 	unsigned int full_inodes = 0;
-	full_blocks = (~full_inodes) >> ((sizeof full_inodes) - LAST_INO);
+	full_inodes = (~full_inodes) >> ((sizeof full_inodes)*8 - LAST_INO);
 	if (write(fd, &full_inodes, sizeof full_inodes) != sizeof full_inodes) {
 		errno_exit("write");
 	}
