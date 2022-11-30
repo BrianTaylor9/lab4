@@ -209,7 +209,7 @@ void write_superblock(int fd) {
 	superblock.s_blocks_per_group  = BLOCK_SIZE * 8;
 	superblock.s_frags_per_group   = BLOCK_SIZE * 8;
 	superblock.s_inodes_per_group  = NUM_INODES;
-	superblock.s_mtime             = current_time; /* Mount time */
+	superblock.s_mtime             = 0; /* Mount time */
 	superblock.s_wtime             = current_time; /* Write time */
 	superblock.s_mnt_count         = 0; /* Number of times mounted so far */
 	superblock.s_max_mnt_count     = -1; /* Make this unlimited */
@@ -224,8 +224,7 @@ void write_superblock(int fd) {
 	superblock.s_def_resuid        = 0; /* root */
 	superblock.s_def_resgid        = 0; /* root */
 
-	/* You can leave everything below this line the same, delete this
-	   comment when you're done the lab */
+
 	superblock.s_uuid[0] = 0x5A;
 	superblock.s_uuid[1] = 0x1E;
 	superblock.s_uuid[2] = 0xAB;
@@ -259,8 +258,7 @@ void write_block_group_descriptor_table(int fd) {
 
 	struct ext2_block_group_descriptor block_group_descriptor = {0};
 
-	/* These are intentionally incorrectly set as 0, you should set them
-	   correctly and delete this comment */
+
 	block_group_descriptor.bg_block_bitmap = BLOCK_BITMAP_BLOCKNO;
 	block_group_descriptor.bg_inode_bitmap = INODE_BITMAP_BLOCKNO;
 	block_group_descriptor.bg_inode_table = INODE_TABLE_BLOCKNO;
@@ -275,15 +273,18 @@ void write_block_group_descriptor_table(int fd) {
 }
 
 void write_block_bitmap(int fd) {
-	/* This is all you */
+
+	// go to start of block bitmap
 	off_t off = BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
 		errno_exit("lseek");
 	}
+
+	// add padding to end of bitmap
 	unsigned char buf[1024] = {0};
 	buf[127] = 0x80;
-	int start_padding = NUM_BLOCKS / 8;
+	int start_padding = BLOCK_SIZE / 8;
 	for (int i = start_padding; i < NUM_BLOCKS; i++) {
 		buf[i] = 0xFF;
 	}
@@ -291,45 +292,50 @@ void write_block_bitmap(int fd) {
 		errno_exit("write");
 	}
 
+	// go back to start of block bitmap
 	off = BLOCK_OFFSET(BLOCK_BITMAP_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
 		errno_exit("lseek");
 	}
 
+	// mark used blocks
 	unsigned int full_blocks = 0;
-	full_blocks = (~full_blocks) >> ((sizeof full_blocks)*8 - LAST_BLOCK);
+	full_blocks = (~full_blocks) >> ((sizeof full_blocks)*8 - LAST_BLOCK); // first n bits become 1, where n is number of blocks used 
 	if (write(fd, &full_blocks, sizeof full_blocks) != sizeof full_blocks) {
 		errno_exit("write");
 	}
 }
 
 void write_inode_bitmap(int fd) {
-	/* This is all you */
+
+	// go to start of inode bitmap
 	off_t off = BLOCK_OFFSET(INODE_BITMAP_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
 		errno_exit("lseek");
 	}
 
+	// add padding to end of bitmap
 	unsigned char buf[1024] = {0};
 	int start_padding = NUM_INODES / 8;
-	for (int i = start_padding; i < NUM_INODES; i++) {
+	for (int i = start_padding; i < BLOCK_SIZE; i++) {
 		buf[i] = 0xFF;
 	}
 	if (write(fd, &buf, sizeof buf) != sizeof buf) {
 		errno_exit("write");
 	}
 
-
+	// go back to start of inode bitmap
 	off = BLOCK_OFFSET(INODE_BITMAP_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
 		errno_exit("lseek");
 	}
-	// unsigned int to_write = 0x1FFF;
+
+	// mark used inodes
 	unsigned int full_inodes = 0;
-	full_inodes = (~full_inodes) >> ((sizeof full_inodes)*8 - LAST_INO);
+	full_inodes = (~full_inodes) >> ((sizeof full_inodes)*8 - LAST_INO); // first n bits become 1, where n is number of blocks used 
 	if (write(fd, &full_inodes, sizeof full_inodes) != sizeof full_inodes) {
 		errno_exit("write");
 	}
@@ -413,17 +419,15 @@ void write_inode_table(int fd) {
 	hello.i_size = 11;
 	hello.i_links_count = 1;
 	memset(hello.i_block, 0, sizeof hello.i_block);
-    memcpy(hello.i_block, "hello-world", strlen("hello-world"));
+    memcpy(hello.i_block, "hello-world", strlen("hello-world")); // path to linked file is stored in inode's block pointer array
 
 	write_inode(fd, HELLO_INO, &hello);
 
-	/* You should add your 3 other inodes in this function and delete this
-	   comment */
 }
 
 void write_root_dir_block(int fd) {
-	/* This is all you */
 
+	// go to start of root directory block
 	off_t off = BLOCK_OFFSET(ROOT_DIR_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
@@ -494,8 +498,8 @@ void write_lost_and_found_dir_block(int fd) {
 }
 
 void write_hello_world_file_block(int fd) {
-	/* This is all you */
 
+	// go to start of hello_world file block
 	off_t off = BLOCK_OFFSET(HELLO_WORLD_FILE_BLOCKNO);
 	off = lseek(fd, off, SEEK_SET);
 	if (off == -1) {
