@@ -196,8 +196,6 @@ void write_superblock(int fd) {
 
 	struct ext2_superblock superblock = {0};
 
-	/* These are intentionally incorrectly set as 0, you should set them
-	   correctly and delete this comment */
 	superblock.s_inodes_count      = NUM_INODES;
 	superblock.s_blocks_count      = NUM_BLOCKS;
 	superblock.s_r_blocks_count    = 0;
