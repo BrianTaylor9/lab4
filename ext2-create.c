@@ -297,7 +297,7 @@ void write_block_bitmap(int fd) {
 		errno_exit("lseek");
 	}
 	// unsigned int to_write = 0x7FFFFF;
-	unsigned int full_blocks = 1 << LAST_BLOCK;
+	unsigned long full_blocks = 2**LAST_BLOCK - 1;
 	if (write(fd, &full_blocks, sizeof full_blocks) != sizeof full_blocks) {
 		errno_exit("write");
 	}
