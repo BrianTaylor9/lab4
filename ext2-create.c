@@ -283,7 +283,8 @@ void write_block_bitmap(int fd) {
 	}
 	unsigned char buf[1024] = {0};
 	buf[127] = 0x80;
-	for (int i = 128; i < 1024; i++) {
+	int start_padding = NUM_BLOCKS / 8;
+	for (int i = start_padding; i < NUM_BLOCKS; i++) {
 		buf[i] = 0xFF;
 	}
 	if (write(fd, &buf, sizeof buf) != sizeof buf) {
@@ -295,8 +296,9 @@ void write_block_bitmap(int fd) {
 	if (off == -1) {
 		errno_exit("lseek");
 	}
-	unsigned int to_write = 0x7FFFFF;
-	if (write(fd, &to_write, sizeof to_write) != sizeof to_write) {
+	// unsigned int to_write = 0x7FFFFF;
+	unsigned int full_blocks = 1 << LAST_BLOCK;
+	if (write(fd, &full_blocks, sizeof full_blocks) != sizeof full_blocks) {
 		errno_exit("write");
 	}
 }
@@ -406,7 +408,6 @@ void write_inode_table(int fd) {
 	hello.i_gid = 1000;
 	hello.i_size = 11;
 	hello.i_links_count = 1;
-
 	memset(hello.i_block, 0, sizeof hello.i_block);
     memcpy(hello.i_block, "hello-world", strlen("hello-world"));
 
